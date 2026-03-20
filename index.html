@@ -3,219 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚔️ 검만들기</title>
+    <title>⚔️ 검키우기</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
             background: #1a1a2e;
             color: #eee;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 30px;
         }
-        h1 { margin: 20px 0 10px; font-size: 1.8em; }
-        .game-container {
-            max-width: 500px;
-            width: 90%;
-            margin: 10px auto;
-        }
+        h1 { margin: 15px 0 5px; font-size: 1.6em; }
+        .subtitle { color: #888; font-size: 0.8em; margin-bottom: 10px; }
+        .game-container { max-width: 500px; width: 92%; margin: 0 auto; }
+
+        /* 검 디스플레이 */
         .sword-display {
             background: linear-gradient(135deg, #16213e, #0f3460);
-            border: 2px solid #e94560;
+            border: 2px solid #533483;
             border-radius: 16px;
-            padding: 30px;
+            padding: 25px;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
         }
-        .sword-emoji { font-size: 80px; display: block; margin-bottom: 15px; }
-        .sword-name {
-            font-size: 1.5em;
+        .sword-display.hidden-weapon { border-color: #f59e0b; }
+        .hidden-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f59e0b;
+            color: #000;
+            font-size: 0.7em;
             font-weight: bold;
-            color: #e94560;
-            margin-bottom: 8px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: none;
         }
-        .sword-desc {
-            font-size: 0.9em;
-            color: #aaa;
-            line-height: 1.5;
-        }
+        .sword-display.hidden-weapon .hidden-badge { display: block; }
+        .sword-emoji { font-size: 70px; display: block; margin-bottom: 10px; }
+        .sword-name { font-size: 1.4em; font-weight: bold; color: #e94560; margin-bottom: 5px; }
+        .sword-type { font-size: 0.75em; color: #888; margin-bottom: 8px; }
+        .sword-desc { font-size: 0.85em; color: #aaa; line-height: 1.5; }
+
+        /* 스탯 */
         .stats {
-            display: flex;
-            justify-content: space-around;
-            background: #16213e;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .stat { text-align: center; }
-        .stat-value { font-size: 1.3em; font-weight: bold; color: #e94560; }
-        .stat-label { font-size: 0.75em; color: #888; margin-top: 2px; }
-        .buttons {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
         }
+        .stat {
+            background: #16213e;
+            border-radius: 10px;
+            padding: 10px 5px;
+            text-align: center;
+        }
+        .stat-value { font-size: 1.1em; font-weight: bold; color: #e94560; }
+        .stat-label { font-size: 0.65em; color: #888; margin-top: 2px; }
+
+        /* 버튼 */
+        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
         .btn {
-            padding: 14px;
+            padding: 12px;
             border: none;
             border-radius: 10px;
-            font-size: 1em;
+            font-size: 0.9em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
+            position: relative;
         }
-        .btn:hover { transform: scale(1.03); }
+        .btn:hover { transform: scale(1.02); filter: brightness(1.1); }
         .btn:active { transform: scale(0.97); }
-        .btn-enhance {
-            background: linear-gradient(135deg, #e94560, #c23152);
-            color: white;
-        }
-        .btn-super {
-            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
-            color: white;
-        }
-        .btn-battle {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-        }
-        .btn-check {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-        }
-        .btn-sell {
-            background: linear-gradient(135deg, #6b7280, #4b5563);
-            color: white;
-        }
-        .btn-collection {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-        }
-        .btn-rates {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            color: white;
-        }
-        .btn-reset {
-            background: linear-gradient(135deg, #ef4444, #b91c1c);
-            color: white;
-        }
+        .btn-enhance { background: linear-gradient(135deg, #e94560, #c23152); color: white; }
+        .btn-sell { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .btn-battle { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; }
+        .btn-check { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .btn-mourn { background: linear-gradient(135deg, #6b7280, #4b5563); color: white; }
+        .btn-ranking { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .btn-collection { background: linear-gradient(135deg, #ec4899, #db2777); color: white; }
+        .btn-profile { background: linear-gradient(135deg, #14b8a6, #0d9488); color: white; }
+        .btn-rates { background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; }
+        .btn-help { background: linear-gradient(135deg, #64748b, #475569); color: white; }
+        .btn-cost { font-size: 0.65em; display: block; opacity: 0.8; margin-top: 2px; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        /* 로그 */
         .log {
             background: #0f0f23;
             border: 1px solid #333;
             border-radius: 12px;
-            padding: 15px;
-            max-height: 250px;
+            padding: 12px;
+            max-height: 300px;
             overflow-y: auto;
-            font-size: 0.85em;
+            font-size: 0.8em;
             line-height: 1.8;
         }
-        .log-entry { border-bottom: 1px solid #222; padding: 4px 0; }
+        .log-entry { border-bottom: 1px solid #1a1a2e; padding: 3px 0; }
         .log-success { color: #10b981; }
+        .log-maintain { color: #60a5fa; }
         .log-fail { color: #ef4444; }
         .log-destroy { color: #f59e0b; font-weight: bold; }
-        .log-info { color: #60a5fa; }
-        .log-battle { color: #a78bfa; }
+        .log-info { color: #a78bfa; }
+        .log-battle { color: #c084fc; }
+        .log-mourn { color: #9ca3af; font-style: italic; }
+        .log-sell { color: #fbbf24; }
 
+        /* 모달 */
         .modal-overlay {
-            display: none;
-            position: fixed;
+            display: none; position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             z-index: 100;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; align-items: center;
         }
         .modal-overlay.active { display: flex; }
         .modal {
             background: #16213e;
-            border: 2px solid #e94560;
+            border: 2px solid #533483;
             border-radius: 16px;
-            padding: 25px;
-            max-width: 450px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
+            padding: 20px;
+            max-width: 450px; width: 90%;
+            max-height: 80vh; overflow-y: auto;
         }
-        .modal h2 { margin-bottom: 15px; color: #e94560; }
+        .modal h2 { margin-bottom: 12px; color: #e94560; font-size: 1.2em; }
         .modal-close {
-            background: #e94560;
-            color: white;
-            border: none;
-            padding: 10px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 15px;
-            font-size: 1em;
+            background: #e94560; color: white; border: none;
+            padding: 8px 25px; border-radius: 8px;
+            cursor: pointer; margin-top: 12px; font-size: 0.9em;
         }
-        .collection-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            border-bottom: 1px solid #333;
-        }
-        .collection-item.locked { opacity: 0.3; }
-        .collection-emoji { font-size: 30px; margin-right: 12px; }
+        .rate-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #1a1a2e; font-size: 0.85em; }
+        .collection-item { display: flex; align-items: center; padding: 6px 0; border-bottom: 1px solid #1a1a2e; }
+        .collection-item.locked { opacity: 0.25; }
+        .collection-emoji { font-size: 24px; margin-right: 10px; min-width: 30px; text-align: center; }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 5px #e94560; }
-            50% { box-shadow: 0 0 30px #e94560, 0 0 60px #e94560; }
-        }
+        /* 묵념 버튼 표시 */
+        .mourn-area { display: none; text-align: center; margin-bottom: 12px; }
+        .mourn-area.active { display: block; }
+
+        /* 애니메이션 */
+        @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+        @keyframes glow { 0%,100%{box-shadow:0 0 5px #533483} 50%{box-shadow:0 0 25px #e94560, 0 0 50px #e94560} }
+        @keyframes explode { 0%{transform:scale(1);opacity:1} 50%{transform:scale(1.3);opacity:0.5} 100%{transform:scale(0);opacity:0} }
         .shake { animation: shake 0.3s ease-in-out; }
-        .glow { animation: glow 0.5s ease-in-out; }
+        .glow { animation: glow 0.6s ease-in-out; }
+        .explode { animation: explode 0.5s ease-out; }
     </style>
 </head>
 <body>
-    <h1>⚔️ 검만들기</h1>
+    <h1>⚔️ 검키우기</h1>
+    <div class="subtitle">카카오톡 플레이봇 스타일</div>
 
     <div class="game-container">
         <div class="sword-display" id="swordDisplay">
+            <div class="hidden-badge">✨ HIDDEN</div>
             <span class="sword-emoji" id="swordEmoji">🪵</span>
             <div class="sword-name" id="swordName">[+0] 낡은 몽둥이</div>
+            <div class="sword-type" id="swordType">일반</div>
             <div class="sword-desc" id="swordDesc">어디서 주운 낡은 몽둥이다.</div>
         </div>
 
         <div class="stats">
-            <div class="stat">
-                <div class="stat-value" id="levelDisplay">+0</div>
-                <div class="stat-label">강화 레벨</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="goldDisplay">100</div>
-                <div class="stat-label">💰 골드</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="winsDisplay">0</div>
-                <div class="stat-label">🏆 승리</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value" id="attemptsDisplay">0</div>
-                <div class="stat-label">🔨 시도</div>
-            </div>
+            <div class="stat"><div class="stat-value" id="levelDisplay">+0</div><div class="stat-label">강화</div></div>
+            <div class="stat"><div class="stat-value" id="goldDisplay">100,000</div><div class="stat-label">💰 골드</div></div>
+            <div class="stat"><div class="stat-value" id="battleDisplay">10/10</div><div class="stat-label">⚔️ 배틀</div></div>
+            <div class="stat"><div class="stat-value" id="maxDisplay">+0</div><div class="stat-label">🏆 최고</div></div>
+        </div>
+
+        <div class="mourn-area" id="mournArea">
+            <button class="btn btn-mourn" onclick="mourn()" style="width:100%">🕯️ 묵념</button>
         </div>
 
         <div class="buttons">
-            <button class="btn btn-enhance" onclick="enhance()">🔨 강화</button>
-            <button class="btn btn-super" onclick="superEnhance()">⚡ 상급강화 (50G)</button>
-            <button class="btn btn-battle" onclick="battle()">⚔️ 배틀</button>
-            <button class="btn btn-check" onclick="dailyCheck()">📅 출석체크</button>
+            <button class="btn btn-enhance" onclick="enhance()" id="enhanceBtn">
+                🔨 강화
+                <span class="btn-cost" id="enhanceCost">비용: 10G</span>
+            </button>
+            <button class="btn btn-sell" onclick="sell()" id="sellBtn">
+                💰 판매
+                <span class="btn-cost" id="sellPrice">판매가: 0G</span>
+            </button>
+            <button class="btn btn-battle" onclick="battle()">
+                ⚔️ 배틀
+                <span class="btn-cost">하루 10회</span>
+            </button>
+            <button class="btn btn-check" onclick="dailyCheck()">
+                📅 출석체크
+                <span class="btn-cost">60,000G</span>
+            </button>
             <button class="btn btn-collection" onclick="showCollection()">📖 도감</button>
             <button class="btn btn-rates" onclick="showRates()">📊 확률표</button>
-            <button class="btn btn-sell" onclick="sell()">💰 판매</button>
-            <button class="btn btn-reset" onclick="resetGame()">🔄 초기화</button>
+            <button class="btn btn-ranking" onclick="showRanking()">🏆 랭킹</button>
+            <button class="btn btn-help" onclick="showHelp()">❓ 도움말</button>
         </div>
 
         <div class="log" id="log"></div>
     </div>
 
-    <!-- 모달 -->
-    <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
         <div class="modal">
             <h2 id="modalTitle"></h2>
             <div id="modalContent"></div>
@@ -223,256 +213,394 @@
         </div>
     </div>
 
-    <script>
-        // ===== 검 데이터 =====
-        const SWORDS = [
-            { level: 0, name: "낡은 몽둥이", emoji: "🪵", desc: "어디서 주운 낡은 몽둥이다.", power: 1 },
-            { level: 1, name: "녹슨 단검", emoji: "🔪", desc: "녹이 슬었지만 그래도 검이다.", power: 5 },
-            { level: 2, name: "철검", emoji: "🗡️", desc: "기본적인 철로 만든 검. 쓸만하다.", power: 12 },
-            { level: 3, name: "강철 장검", emoji: "⚔️", desc: "단단한 강철로 벼린 장검. 묵직한 한방이 있다.", power: 22 },
-            { level: 4, name: "은빛 세검", emoji: "🌙", desc: "은빛으로 빛나는 세검. 달빛 아래서 더 강해진다는 소문.", power: 35 },
-            { level: 5, name: "마력의 검", emoji: "🔮", desc: "마력이 깃든 신비한 검. 검에서 푸른 오오라가 피어오른다.", power: 50 },
-            { level: 6, name: "화염의 대검", emoji: "🔥", desc: "불꽃이 타오르는 대검. 벨 때마다 화염이 작렬한다.", power: 70 },
-            { level: 7, name: "흑사병의 물결", emoji: "🌊", desc: "어둠의 파동이 일렁이는 저주받은 검. 베인 자는 서서히 부패한다.", power: 95 },
-            { level: 8, name: "용의 이빨", emoji: "🐉", desc: "고대 용의 이빨로 벼린 전설의 검. 용의 분노가 깃들어 있다.", power: 130 },
-            { level: 9, name: "천상의 빛", emoji: "✨", desc: "하늘에서 내려온 성스러운 검. 들어올린 자에게 축복이 깃든다.", power: 180 },
-            { level: 10, name: "무(無)의 권능 검", emoji: "💀", desc: "과거 통제 불능의 부패는 이제 존재의 근원을 뒤흔드는 완벽한 힘으로 완성되었다. 휘두르는 모든 것은 무(無)로 돌아가, 마치 태초의 공허가 강림한 듯하다.", power: 999 }
-        ];
+<script>
+// ===== 일반 무기 이름 풀 =====
+const NORMAL_NAMES = [
+    {type:'검', names:['낡은 검','무딘 검','철검','강철검','장검','대검','마검','불꽃 마검','용의 검','성검','전설의 검','빛나는 성검','천상의 검','심연의 검','운명의 검','황금 용검','무(無)의 검','태초의 검','신의 검','창세의 검','종말의 검']},
+    {type:'몽둥이', names:['낡은 몽둥이','나무 몽둥이','쇠 몽둥이','가시 몽둥이','전투 몽둥이','강철 몽둥이','마력 몽둥이','흑사병의 물결 몽둥이','용의 몽둥이','전설의 몽둥이','빛의 몽둥이','파멸의 몽둥이','천둥 몽둥이','심판의 몽둥이','운명의 몽둥이','황금 몽둥이','무(無)의 몽둥이','태초의 몽둥이','신의 몽둥이','창세의 몽둥이','종말의 몽둥이']},
+    {type:'막대', names:['낡은 막대','나무 막대','강화 막대','마법 막대','빛나는 막대','불꽃 막대','얼음 막대','번개 막대','어둠의 막대','성스러운 막대','전설의 막대','파멸의 막대','심연의 막대','천상의 막대','운명의 막대','황금 막대','무(無)의 막대','태초의 막대','신의 막대','창세의 막대','종말의 막대']}
+];
 
-        // ===== 강화 확률 =====
-        const ENHANCE_RATES = {
-            0: 0.95, 1: 0.90, 2: 0.85, 3: 0.75, 4: 0.65,
-            5: 0.50, 6: 0.35, 7: 0.20, 8: 0.10, 9: 0.05
-        };
+// ===== 히든 무기 풀 =====
+const HIDDEN_WEAPONS = [
+    {name:'단소', emoji:'🎵', desc:'맑은 소리가 나는 대나무 단소. 이걸로 싸운다고?'},
+    {name:'젓가락', emoji:'🥢', desc:'평범한 나무 젓가락. 의외로 찌르기 공격이 가능하다.'},
+    {name:'우산', emoji:'☂️', desc:'비 오는 날의 필수품. 펼치면 방어도 된다.'},
+    {name:'핫도그', emoji:'🌭', desc:'먹음직스러운 핫도그. 무기인지 간식인지 헷갈린다.'},
+    {name:'주전자', emoji:'🫖', desc:'손잡이가 덜렁거리는 주전자. 차를 끓이기엔 부적합하다.'},
+    {name:'칫솔', emoji:'🪥', desc:'양치질은 하루 세 번. 전투는 하루 열 번.'},
+    {name:'슬리퍼', emoji:'🩴', desc:'엄마의 슬리퍼. 모든 악을 물리치는 전설의 무기.'},
+    {name:'꽃다발', emoji:'💐', desc:'아름다운 꽃다발. 받는 사람의 마음을 녹인다.'},
+    {name:'빗자루', emoji:'🧹', desc:'마녀의 빗자루. 하늘을 날 수 있다는 소문이 있다.'},
+    {name:'광선검', emoji:'⚡', desc:'빛의 속도로 베는 미래형 무기.'},
+    {name:'프라이팬', emoji:'🍳', desc:'주방의 왕. 요리도 전투도 가능한 만능 도구.'},
+    {name:'물고기', emoji:'🐟', desc:'싱싱한 생선. 적의 얼굴을 향해 휘두르면 된다.'},
+];
 
-        // ===== 게임 상태 =====
-        let gameState = loadGame() || {
-            level: 0,
-            gold: 100,
-            wins: 0,
-            losses: 0,
-            attempts: 0,
-            maxLevel: 0,
-            collection: [0],
-            lastCheck: null
-        };
+// ===== 공식 강화 확률 (플레이봇 2026.03.04 공지 기반 + 추정) =====
+const ENHANCE_RATES = {
+    0:  {success:1.00, maintain:0.00, destroy:0.00},
+    1:  {success:0.90, maintain:0.10, destroy:0.00},
+    2:  {success:0.80, maintain:0.20, destroy:0.00},
+    3:  {success:0.70, maintain:0.28, destroy:0.02},
+    4:  {success:0.60, maintain:0.35, destroy:0.05},
+    5:  {success:0.50, maintain:0.40, destroy:0.10},
+    6:  {success:0.40, maintain:0.43, destroy:0.17},
+    7:  {success:0.30, maintain:0.45, destroy:0.25},
+    8:  {success:0.25, maintain:0.42, destroy:0.33},
+    9:  {success:0.20, maintain:0.40, destroy:0.40},
+    10: {success:0.15, maintain:0.38, destroy:0.47},
+    11: {success:0.12, maintain:0.35, destroy:0.53},
+    12: {success:0.10, maintain:0.32, destroy:0.58},
+    13: {success:0.08, maintain:0.30, destroy:0.62},
+    14: {success:0.06, maintain:0.28, destroy:0.66},
+    15: {success:0.05, maintain:0.25, destroy:0.70},
+    16: {success:0.04, maintain:0.22, destroy:0.74},
+    17: {success:0.03, maintain:0.20, destroy:0.77},
+    18: {success:0.02, maintain:0.18, destroy:0.80},
+    19: {success:0.01, maintain:0.15, destroy:0.84},
+};
 
-        // ===== 저장/로드 =====
-        function saveGame() {
-            localStorage.setItem('swordGame', JSON.stringify(gameState));
+// ===== 강화 비용 =====
+const ENHANCE_COST = [10,20,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000,1000000,2000000,5000000,10000000,20000000];
+
+// ===== 판매 가격 (일반) =====
+const SELL_PRICE_NORMAL = [0,10,30,80,200,500,1500,4000,10000,30000,80000,200000,500000,1000000,2500000,5000000,10000000,20000000,50000000,100000000,200000000];
+const HIDDEN_MULTIPLIER = 3;
+
+// ===== 게임 상태 =====
+let gs = loadGame() || {
+    level: 0,
+    gold: 100000,
+    weaponName: '낡은 몽둥이',
+    weaponEmoji: '🪵',
+    weaponType: 'normal', // 'normal' or 'hidden'
+    weaponCategory: '몽둥이',
+    battleLeft: 10,
+    lastBattleReset: new Date().toDateString(),
+    lastCheck: null,
+    maxLevel: 0,
+    totalEnhance: 0,
+    totalDestroy: 0,
+    wins: 0, losses: 0,
+    collection: [{name:'낡은 몽둥이',emoji:'🪵',level:0,type:'normal'}],
+    mournCount: 0,
+    canMourn: false,
+    destroyedWeapon: ''
+};
+
+function saveGame() { localStorage.setItem('swordGameV2', JSON.stringify(gs)); }
+function loadGame() { const d = localStorage.getItem('swordGameV2'); return d ? JSON.parse(d) : null; }
+function fmt(n) { return n.toLocaleString(); }
+
+// ===== 무기 생성 =====
+function generateWeapon(level) {
+    const isHidden = Math.random() < 0.10; // 10% 히든
+    if (isHidden) {
+        const h = HIDDEN_WEAPONS[Math.floor(Math.random() * HIDDEN_WEAPONS.length)];
+        return { name: h.name, emoji: h.emoji, type: 'hidden', category: h.name, desc: h.desc };
+    } else {
+        const cat = NORMAL_NAMES[Math.floor(Math.random() * NORMAL_NAMES.length)];
+        const name = cat.names[Math.min(level, cat.names.length - 1)];
+        return { name: name, emoji: getEmojiForLevel(level), type: 'normal', category: cat.type, desc: getDescForLevel(level) };
+    }
+}
+
+function getEmojiForLevel(lv) {
+    const emojis = ['🪵','🔪','🗡️','⚔️','🌙','🔮','🔥','🌊','🐉','✨','💀','👑','⭐','🌟','💎','🏆','🎯','💫','🌈','🔱','👁️'];
+    return emojis[Math.min(lv, emojis.length-1)];
+}
+
+function getDescForLevel(lv) {
+    const descs = [
+        '아무런 가치가 없어 보인다.','녹이 슬었지만 쓸 만하다.','기본적인 무기다.','꽤 단단한 무기다.',
+        '은빛 광택이 난다.','마력이 깃들어 있다.','불꽃이 타오른다.','어둠의 파동이 일렁인다.',
+        '용의 기운이 느껴진다.','신성한 빛이 감싼다.','존재의 근원을 뒤흔든다.','전설이 시작된다.',
+        '별빛이 깃들었다.','세계의 균열이 보인다.','차원을 가르는 힘이 있다.','운명을 지배한다.',
+        '시간을 초월한다.','우주의 진리가 담겼다.','신조차 두려워한다.','창세의 힘이 깃들었다.',
+        '만물의 끝이자 시작이다.'
+    ];
+    return descs[Math.min(lv, descs.length-1)];
+}
+
+// ===== UI 업데이트 =====
+function updateDisplay() {
+    const display = document.getElementById('swordDisplay');
+    document.getElementById('swordEmoji').textContent = gs.weaponEmoji;
+    document.getElementById('swordName').textContent = `[+${gs.level}] ${gs.weaponName}`;
+    document.getElementById('swordType').textContent = gs.weaponType === 'hidden' ? '✨ 히든 무기' : `일반 (${gs.weaponCategory})`;
+    document.getElementById('swordDesc').textContent = getDescForLevel(gs.level);
+    document.getElementById('levelDisplay').textContent = `+${gs.level}`;
+    document.getElementById('goldDisplay').textContent = fmt(gs.gold);
+    document.getElementById('maxDisplay').textContent = `+${gs.maxLevel}`;
+
+    // 배틀 횟수 리셋 체크
+    if (gs.lastBattleReset !== new Date().toDateString()) {
+        gs.battleLeft = 10;
+        gs.lastBattleReset = new Date().toDateString();
+    }
+    document.getElementById('battleDisplay').textContent = `${gs.battleLeft}/10`;
+
+    // 히든 스타일
+    display.classList.toggle('hidden-weapon', gs.weaponType === 'hidden');
+
+    // 강화 비용 표시
+    const cost = ENHANCE_COST[Math.min(gs.level, ENHANCE_COST.length-1)];
+    document.getElementById('enhanceCost').textContent = `비용: ${fmt(cost)}G`;
+    document.getElementById('enhanceBtn').disabled = gs.level >= 20;
+
+    // 판매 가격 표시
+    const price = getSellPrice();
+    document.getElementById('sellPrice').textContent = `판매가: ${fmt(price)}G`;
+    document.getElementById('sellBtn').disabled = gs.level === 0;
+
+    // 묵념 영역
+    document.getElementById('mournArea').classList.toggle('active', gs.canMourn);
+
+    saveGame();
+}
+
+function getSellPrice() {
+    const base = SELL_PRICE_NORMAL[Math.min(gs.level, SELL_PRICE_NORMAL.length-1)];
+    return gs.weaponType === 'hidden' ? base * HIDDEN_MULTIPLIER : base;
+}
+
+function addLog(msg, type='') {
+    const log = document.getElementById('log');
+    const e = document.createElement('div');
+    e.className = `log-entry ${type}`;
+    const t = new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    e.innerHTML = `<span style="color:#444">[${t}]</span> ${msg}`;
+    log.insertBefore(e, log.firstChild);
+    if (log.children.length > 100) log.removeChild(log.lastChild);
+}
+
+function addToCollection(name, emoji, level, type) {
+    if (!gs.collection.find(c => c.name === name && c.type === type)) {
+        gs.collection.push({name, emoji, level, type});
+        addLog(`📖 도감 등록! ${emoji} ${name}`, 'log-info');
+    }
+}
+
+// ===== 강화 =====
+function enhance() {
+    if (gs.level >= 20) { addLog('🏆 이미 최대 강화(+20)입니다!', 'log-info'); return; }
+    const cost = ENHANCE_COST[Math.min(gs.level, ENHANCE_COST.length-1)];
+    if (gs.gold < cost) { addLog(`❌ 골드가 부족합니다! (필요: ${fmt(cost)}G, 보유: ${fmt(gs.gold)}G)`, 'log-fail'); return; }
+
+    gs.gold -= cost;
+    gs.totalEnhance++;
+    gs.canMourn = false;
+    const rates = ENHANCE_RATES[gs.level] || {success:0.01, maintain:0.15, destroy:0.84};
+    const roll = Math.random();
+    const display = document.getElementById('swordDisplay');
+    const prevLevel = gs.level;
+
+    if (roll < rates.success) {
+        // === 성공 ===
+        gs.level++;
+        if (gs.level > gs.maxLevel) gs.maxLevel = gs.level;
+        // 레벨에 맞게 무기 이름 업데이트 (일반 무기일 때)
+        if (gs.weaponType === 'normal') {
+            const cat = NORMAL_NAMES.find(c => c.type === gs.weaponCategory) || NORMAL_NAMES[0];
+            gs.weaponName = cat.names[Math.min(gs.level, cat.names.length-1)];
+            gs.weaponEmoji = getEmojiForLevel(gs.level);
         }
+        addToCollection(gs.weaponName, gs.weaponEmoji, gs.level, gs.weaponType);
+        display.classList.add('glow');
+        setTimeout(() => display.classList.remove('glow'), 600);
+        addLog(`🎉 강화 성공! +${prevLevel} → <b>+${gs.level}</b> 「${gs.weaponName}」 (-${fmt(cost)}G)`, 'log-success');
 
-        function loadGame() {
-            const data = localStorage.getItem('swordGame');
-            return data ? JSON.parse(data) : null;
-        }
+    } else if (roll < rates.success + rates.maintain) {
+        // === 유지 ===
+        addLog(`🔹 강화 실패 (유지) +${prevLevel} 변화 없음 (-${fmt(cost)}G)`, 'log-maintain');
+        display.classList.add('shake');
+        setTimeout(() => display.classList.remove('shake'), 300);
 
-        // ===== UI 업데이트 =====
-        function updateDisplay() {
-            const sword = SWORDS[gameState.level];
-            document.getElementById('swordEmoji').textContent = sword.emoji;
-            document.getElementById('swordName').textContent = `[+${sword.level}] ${sword.name}`;
-            document.getElementById('swordDesc').textContent = sword.desc;
-            document.getElementById('levelDisplay').textContent = `+${gameState.level}`;
-            document.getElementById('goldDisplay').textContent = gameState.gold;
-            document.getElementById('winsDisplay').textContent = gameState.wins;
-            document.getElementById('attemptsDisplay').textContent = gameState.attempts;
-            saveGame();
-        }
+    } else {
+        // === 파괴 ===
+        gs.totalDestroy++;
+        const destroyedName = `[+${prevLevel}] ${gs.weaponName}`;
+        gs.destroyedWeapon = destroyedName;
 
-        function addLog(message, type = '') {
-            const log = document.getElementById('log');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type}`;
-            const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-            entry.innerHTML = `<span style="color:#555">[${time}]</span> ${message}`;
-            log.insertBefore(entry, log.firstChild);
-            if (log.children.length > 50) log.removeChild(log.lastChild);
-        }
+        // 새 +0 무기 랜덤 지급
+        const newWeapon = generateWeapon(0);
+        gs.level = 0;
+        gs.weaponName = newWeapon.name;
+        gs.weaponEmoji = newWeapon.emoji;
+        gs.weaponType = newWeapon.type;
+        gs.weaponCategory = newWeapon.category;
 
-        // ===== 강화 =====
-        function enhance() {
-            const currentLevel = gameState.level;
-            if (currentLevel >= 10) {
-                addLog("이미 최고 레벨입니다! 🏆", "log-info");
-                return;
-            }
+        addToCollection(newWeapon.name, newWeapon.emoji, 0, newWeapon.type);
 
-            gameState.attempts++;
-            const rate = ENHANCE_RATES[currentLevel];
-            const success = Math.random() < rate;
-            const display = document.getElementById('swordDisplay');
+        display.classList.add('explode');
+        setTimeout(() => { display.classList.remove('explode'); }, 500);
 
-            if (success) {
-                gameState.level++;
-                if (!gameState.collection.includes(gameState.level)) {
-                    gameState.collection.push(gameState.level);
-                    addLog(`📖 새로운 검 발견! [+${gameState.level}] ${SWORDS[gameState.level].name}`, "log-info");
-                }
-                if (gameState.level > gameState.maxLevel) gameState.maxLevel = gameState.level;
-                gameState.gold += gameState.level * 5;
-                display.classList.add('glow');
-                setTimeout(() => display.classList.remove('glow'), 500);
-                addLog(`🎉 강화 성공! +${currentLevel} → +${gameState.level} (${(rate*100).toFixed(0)}%)`, "log-success");
-            } else {
-                const destroyed = currentLevel >= 7 && Math.random() < 0.3;
-                if (destroyed) {
-                    addLog(`💥 [+${currentLevel}] ${SWORDS[currentLevel].name} 산산조각! → [+0] 낡은 몽둥이 지급`, "log-destroy");
-                    gameState.level = 0;
-                } else {
-                    const newLevel = Math.max(0, currentLevel - 1);
-                    addLog(`😢 강화 실패... +${currentLevel} → +${newLevel} (${(rate*100).toFixed(0)}%)`, "log-fail");
-                    gameState.level = newLevel;
-                }
-                display.classList.add('shake');
-                setTimeout(() => display.classList.remove('shake'), 300);
-            }
-            updateDisplay();
-        }
+        const hiddenText = newWeapon.type === 'hidden' ? ' ✨<b>[히든!]</b>' : '';
+        addLog(`💥 『${destroyedName}』 산산조각!${hiddenText} → [+0] ${newWeapon.name} 지급 (-${fmt(cost)}G)`, 'log-destroy');
 
-        // ===== 상급강화 =====
-        function superEnhance() {
-            if (gameState.gold < 50) {
-                addLog("❌ 골드가 부족합니다! (50G 필요)", "log-fail");
-                return;
-            }
-            if (gameState.level >= 10) {
-                addLog("이미 최고 레벨입니다! 🏆", "log-info");
-                return;
-            }
+        if (prevLevel >= 10) gs.canMourn = true;
+    }
+    updateDisplay();
+}
 
-            gameState.gold -= 50;
-            gameState.attempts++;
-            const currentLevel = gameState.level;
-            const baseRate = ENHANCE_RATES[currentLevel];
-            const boostedRate = Math.min(baseRate * 1.5, 0.99);
-            const success = Math.random() < boostedRate;
-            const display = document.getElementById('swordDisplay');
+// ===== 판매 =====
+function sell() {
+    if (gs.level === 0) { addLog('❌ +0 무기는 판매할 수 없습니다.', 'log-fail'); return; }
+    const price = getSellPrice();
+    const soldName = `[+${gs.level}] ${gs.weaponName}`;
+    gs.gold += price;
 
-            if (success) {
-                gameState.level++;
-                if (!gameState.collection.includes(gameState.level)) {
-                    gameState.collection.push(gameState.level);
-                    addLog(`📖 새로운 검 발견! [+${gameState.level}] ${SWORDS[gameState.level].name}`, "log-info");
-                }
-                if (gameState.level > gameState.maxLevel) gameState.maxLevel = gameState.level;
-                gameState.gold += gameState.level * 10;
-                display.classList.add('glow');
-                setTimeout(() => display.classList.remove('glow'), 500);
-                addLog(`⚡ 상급강화 성공! +${currentLevel} → +${gameState.level} (${(boostedRate*100).toFixed(0)}%) [-50G]`, "log-success");
-            } else {
-                const newLevel = Math.max(0, currentLevel - 1);
-                addLog(`⚡ 상급강화 실패... +${currentLevel} → +${newLevel} (${(boostedRate*100).toFixed(0)}%) [-50G]`, "log-fail");
-                gameState.level = newLevel;
-                display.classList.add('shake');
-                setTimeout(() => display.classList.remove('shake'), 300);
-            }
-            updateDisplay();
-        }
+    // 새 무기 지급
+    const newWeapon = generateWeapon(0);
+    gs.level = 0;
+    gs.weaponName = newWeapon.name;
+    gs.weaponEmoji = newWeapon.emoji;
+    gs.weaponType = newWeapon.type;
+    gs.weaponCategory = newWeapon.category;
+    addToCollection(newWeapon.name, newWeapon.emoji, 0, newWeapon.type);
 
-        // ===== 배틀 =====
-        function battle() {
-            const oppLevel = Math.floor(Math.random() * 11);
-            const oppSword = SWORDS[oppLevel];
-            const oppName = ["김철수","이영희","박민수","최지영","정대호","강수진","윤서준","한미래","조은비","송하늘"][Math.floor(Math.random()*10)];
+    const hiddenText = newWeapon.type === 'hidden' ? ' ✨[히든!]' : '';
+    addLog(`💰 『${soldName}』 판매 완료! +${fmt(price)}G${hiddenText} → [+0] ${newWeapon.name} 지급`, 'log-sell');
+    gs.canMourn = false;
+    updateDisplay();
+}
 
-            const myPower = SWORDS[gameState.level].power + Math.random() * 20;
-            const oppPower = oppSword.power + Math.random() * 20;
-            const win = myPower > oppPower;
+// ===== 배틀 =====
+function battle() {
+    if (gs.lastBattleReset !== new Date().toDateString()) {
+        gs.battleLeft = 10;
+        gs.lastBattleReset = new Date().toDateString();
+    }
+    if (gs.battleLeft <= 0) { addLog('⚔️ 오늘 배틀 횟수를 모두 사용했습니다. (10/10)', 'log-fail'); return; }
 
-            if (win) {
-                const reward = oppLevel * 5 + 10;
-                gameState.wins++;
-                gameState.gold += reward;
-                addLog(`⚔️ vs ${oppName}([+${oppLevel}]) → 🏆 승리! +${reward}G`, "log-battle");
-            } else {
-                gameState.losses++;
-                addLog(`⚔️ vs ${oppName}([+${oppLevel}]) → 💀 패배...`, "log-fail");
-            }
-            updateDisplay();
-        }
+    gs.battleLeft--;
+    const oppNames = ['김철수','이영희','박민수','최지영','정대호','강수진','윤서준','한미래','조은비','송하늘','장도윤','오세진','임가연','홍석현','배수아'];
+    const oppName = oppNames[Math.floor(Math.random()*oppNames.length)];
+    const oppLevel = Math.max(0, Math.min(20, gs.level + Math.floor(Math.random()*7) - 3));
 
-        // ===== 출석체크 =====
-        function dailyCheck() {
-            const today = new Date().toDateString();
-            if (gameState.lastCheck === today) {
-                addLog("📅 오늘은 이미 출석체크 완료!", "log-info");
-                return;
-            }
-            gameState.lastCheck = today;
-            gameState.gold += 50;
-            addLog("📅 출석체크! +50G", "log-success");
-            updateDisplay();
-        }
+    // 승률 계산: 레벨 차이 기반이지만 역배 가능
+    const diff = gs.level - oppLevel;
+    let winChance = 0.5 + diff * 0.08;
+    winChance = Math.max(0.05, Math.min(0.95, winChance));
+    const win = Math.random() < winChance;
 
-        // ===== 판매 =====
-        function sell() {
-            if (gameState.level === 0) {
-                addLog("❌ 낡은 몽둥이는 아무도 안 삽니다...", "log-fail");
-                return;
-            }
-            const price = gameState.level * 15;
-            addLog(`💰 [+${gameState.level}] ${SWORDS[gameState.level].name} 판매! +${price}G`, "log-info");
-            gameState.gold += price;
-            gameState.level = 0;
-            updateDisplay();
-        }
+    if (win) {
+        const reward = Math.max(1000, oppLevel * oppLevel * 500 + oppLevel * 2000);
+        gs.wins++;
+        gs.gold += reward;
+        addLog(`⚔️ vs <b>${oppName}</b>[+${oppLevel}] → 🏆 승리! +${fmt(reward)}G (남은 횟수: ${gs.battleLeft})`, 'log-battle');
+    } else {
+        gs.losses++;
+        addLog(`⚔️ vs <b>${oppName}</b>[+${oppLevel}] → 💀 패배... (남은 횟수: ${gs.battleLeft})`, 'log-fail');
+    }
+    updateDisplay();
+}
 
-        // ===== 도감 =====
-        function showCollection() {
-            let html = '';
-            SWORDS.forEach((s, i) => {
-                const unlocked = gameState.collection.includes(i);
-                html += `<div class="collection-item ${unlocked ? '' : 'locked'}">
-                    <span class="collection-emoji">${unlocked ? s.emoji : '❓'}</span>
-                    <div>
-                        <strong>[+${s.level}] ${unlocked ? s.name : '???'}</strong><br>
-                        <small style="color:#888">${unlocked ? s.desc : '아직 발견하지 못한 검입니다.'}</small>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('modalTitle').textContent = `📖 도감 (${gameState.collection.length}/${SWORDS.length})`;
-            document.getElementById('modalContent').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-        }
+// ===== 출석체크 =====
+function dailyCheck() {
+    const today = new Date().toDateString();
+    if (gs.lastCheck === today) { addLog('📅 오늘은 이미 출석체크 완료!', 'log-info'); return; }
+    gs.lastCheck = today;
+    gs.gold += 60000;
+    addLog('📅 출석체크 완료! +60,000G', 'log-success');
+    updateDisplay();
+}
 
-        // ===== 확률표 =====
-        function showRates() {
-            let html = '<table style="width:100%; text-align:center; border-collapse:collapse;">';
-            html += '<tr style="border-bottom:2px solid #e94560"><th>강화</th><th>확률</th><th>상급강화</th></tr>';
-            for (let i = 0; i <= 9; i++) {
-                const r = ENHANCE_RATES[i];
-                const sr = Math.min(r * 1.5, 0.99);
-                const color = r >= 0.5 ? '#10b981' : r >= 0.2 ? '#f59e0b' : '#ef4444';
-                html += `<tr style="border-bottom:1px solid #333">
-                    <td>+${i}→+${i+1}</td>
-                    <td style="color:${color}">${(r*100).toFixed(0)}%</td>
-                    <td style="color:${color}">${(sr*100).toFixed(0)}%</td>
-                </tr>`;
-            }
-            html += '</table>';
-            if (gameState.level >= 7) html += '<p style="color:#f59e0b;margin-top:10px">⚠️ +7 이상 실패 시 30% 확률로 파괴!</p>';
-            document.getElementById('modalTitle').textContent = '📊 강화 확률표';
-            document.getElementById('modalContent').innerHTML = html;
-            document.getElementById('modalOverlay').classList.add('active');
-        }
+// ===== 묵념 =====
+function mourn() {
+    gs.mournCount++;
+    gs.canMourn = false;
+    addLog(`🕯️ 『${gs.destroyedWeapon}』에 대한 묵념... (총 ${gs.mournCount}회)`, 'log-mourn');
+    updateDisplay();
+}
 
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-        }
+// ===== 도감 =====
+function showCollection() {
+    let html = `<p style="color:#888;margin-bottom:10px">발견: ${gs.collection.length}종</p>`;
+    const sorted = [...gs.collection].sort((a,b) => a.level - b.level || a.name.localeCompare(b.name));
+    sorted.forEach(c => {
+        const typeTag = c.type === 'hidden' ? '<span style="color:#f59e0b;font-size:0.7em"> ✨히든</span>' : '';
+        html += `<div class="collection-item">
+            <span class="collection-emoji">${c.emoji}</span>
+            <div><strong>${c.name}</strong>${typeTag}</div>
+        </div>`;
+    });
+    openModal('📖 도감', html);
+}
 
-        // ===== 초기화 =====
-        function resetGame() {
-            if (!confirm('정말 초기화하시겠습니까? 모든 데이터가 사라집니다!')) return;
-            gameState = { level: 0, gold: 100, wins: 0, losses: 0, attempts: 0, maxLevel: 0, collection: [0], lastCheck: null };
-            document.getElementById('log').innerHTML = '';
-            addLog("🔄 게임이 초기화되었습니다.", "log-info");
-            updateDisplay();
-        }
+// ===== 확률표 =====
+function showRates() {
+    let html = '<div style="font-size:0.8em;color:#888;margin-bottom:8px">플레이봇 공식 기준</div>';
+    for (let i = 0; i <= 19; i++) {
+        const r = ENHANCE_RATES[i];
+        const cost = ENHANCE_COST[Math.min(i, ENHANCE_COST.length-1)];
+        const sColor = r.success >= 0.5 ? '#10b981' : r.success >= 0.2 ? '#f59e0b' : '#ef4444';
+        html += `<div class="rate-row">
+            <span>+${i}→+${i+1}</span>
+            <span style="color:${sColor}">${(r.success*100).toFixed(0)}%</span>
+            <span style="color:#60a5fa">${(r.maintain*100).toFixed(0)}%</span>
+            <span style="color:#ef4444">${(r.destroy*100).toFixed(0)}%</span>
+            <span style="color:#666">${fmt(cost)}G</span>
+        </div>`;
+    }
+    html = '<div class="rate-row" style="font-weight:bold;border-bottom:2px solid #533483"><span>강화</span><span style="color:#10b981">성공</span><span style="color:#60a5fa">유지</span><span style="color:#ef4444">파괴</span><span style="color:#666">비용</span></div>' + html;
+    openModal('📊 강화 확률표', html);
+}
 
-        // 초기 화면 업데이트
-        updateDisplay();
-        addLog("⚔️ 검만들기 게임에 오신 것을 환영합니다!", "log-info");
-    </script>
+// ===== 랭킹 (NPC 시뮬레이션) =====
+function showRanking() {
+    const npcs = [
+        {name:'⚡전설의검사', level:20}, {name:'🔥불꽃대장', level:19},
+        {name:'🐉드래곤슬레이어', level:18}, {name:'✨별빛기사', level:17},
+        {name:'🌊파도의검', level:16}, {name:'💀다크소드', level:15},
+        {name:'🎯명사수', level:14}, {name:'🛡️철벽수비', level:13},
+        {name:'🌙월광검사', level:12}, {name:'⚔️초보기사', level:10}
+    ];
+    // 내 순위 끼워넣기
+    let all = [...npcs, {name:`👤 나`, level: gs.level, isMe: true}];
+    all.sort((a,b) => b.level - a.level);
+    let html = '';
+    all.forEach((u, i) => {
+        const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}위`;
+        const style = u.isMe ? 'color:#e94560;font-weight:bold' : '';
+        html += `<div style="padding:5px 0;border-bottom:1px solid #1a1a2e;${style}">${medal} ${u.name} — +${u.level}강</div>`;
+    });
+    openModal('🏆 랭킹', html);
+}
+
+// ===== 도움말 =====
+function showHelp() {
+    openModal('❓ 도움말',
+        `<div style="font-size:0.85em;line-height:2">
+        <b>🔨 강화</b> — 골드를 소모하여 무기 강화 (성공/유지/파괴)<br>
+        <b>💰 판매</b> — 현재 무기를 판매하고 새 +0 무기 수령<br>
+        <b>⚔️ 배틀</b> — NPC와 대결 (하루 10회, 승리 시 골드)<br>
+        <b>📅 출석체크</b> — 하루 1회, 60,000G 보상<br>
+        <b>📖 도감</b> — 지금까지 발견한 무기 목록<br>
+        <b>📊 확률표</b> — 단계별 강화 확률/비용<br>
+        <b>🕯️ 묵념</b> — +10 이상 파괴 시 등장<br>
+        <hr style="border-color:#333;margin:8px 0">
+        <b>히든 무기</b> — 파괴/판매 후 10% 확률로 등장<br>
+        히든 무기의 판매가는 일반의 <b style="color:#f59e0b">3배!</b><br>
+        <hr style="border-color:#333;margin:8px 0">
+        <b>팁:</b> 13강에서 판매하는 것이 효율적!<br>
+        <b>팁:</b> 히든 무기가 나오면 바로 판매 추천!<br>
+        <b>팁:</b> 배틀은 3강 차이까지 역전 가능!
+        </div>`
+    );
+}
+
+function openModal(title, content) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalContent').innerHTML = content;
+    document.getElementById('modalOverlay').classList.add('active');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+// 초기화
+updateDisplay();
+addLog('⚔️ 검키우기에 오신 것을 환영합니다! 초기 자금 100,000G 지급!', 'log-info');
+</script>
 </body>
 </html>
