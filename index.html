@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ 검만들기</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { margin: 20px 0 10px; font-size: 1.8em; }
+        .game-container {
+            max-width: 500px;
+            width: 90%;
+            margin: 10px auto;
+        }
+        .sword-display {
+            background: linear-gradient(135deg, #16213e, #0f3460);
+            border: 2px solid #e94560;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .sword-emoji { font-size: 80px; display: block; margin-bottom: 15px; }
+        .sword-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e94560;
+            margin-bottom: 8px;
+        }
+        .sword-desc {
+            font-size: 0.9em;
+            color: #aaa;
+            line-height: 1.5;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: #16213e;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .stat { text-align: center; }
+        .stat-value { font-size: 1.3em; font-weight: bold; color: #e94560; }
+        .stat-label { font-size: 0.75em; color: #888; margin-top: 2px; }
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { transform: scale(1.03); }
+        .btn:active { transform: scale(0.97); }
+        .btn-enhance {
+            background: linear-gradient(135deg, #e94560, #c23152);
+            color: white;
+        }
+        .btn-super {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+        }
+        .btn-battle {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        .btn-check {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .btn-sell {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+        }
+        .btn-collection {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+        .btn-rates {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+            color: white;
+        }
+        .btn-reset {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+        }
+        .log {
+            background: #0f0f23;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-size: 0.85em;
+            line-height: 1.8;
+        }
+        .log-entry { border-bottom: 1px solid #222; padding: 4px 0; }
+        .log-success { color: #10b981; }
+        .log-fail { color: #ef4444; }
+        .log-destroy { color: #f59e0b; font-weight: bold; }
+        .log-info { color: #60a5fa; }
+        .log-battle { color: #a78bfa; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: #16213e;
+            border: 2px solid #e94560;
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 450px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal h2 { margin-bottom: 15px; color: #e94560; }
+        .modal-close {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 1em;
+        }
+        .collection-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #333;
+        }
+        .collection-item.locked { opacity: 0.3; }
+        .collection-emoji { font-size: 30px; margin-right: 12px; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px #e94560; }
+            50% { box-shadow: 0 0 30px #e94560, 0 0 60px #e94560; }
+        }
+        .shake { animation: shake 0.3s ease-in-out; }
+        .glow { animation: glow 0.5s ease-in-out; }
+    </style>
+</head>
+<body>
+    <h1>⚔️ 검만들기</h1>
+
+    <div class="game-container">
+        <div class="sword-display" id="swordDisplay">
+            <span class="sword-emoji" id="swordEmoji">🪵</span>
+            <div class="sword-name" id="swordName">[+0] 낡은 몽둥이</div>
+            <div class="sword-desc" id="swordDesc">어디서 주운 낡은 몽둥이다.</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="levelDisplay">+0</div>
+                <div class="stat-label">강화 레벨</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="goldDisplay">100</div>
+                <div class="stat-label">💰 골드</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="winsDisplay">0</div>
+                <div class="stat-label">🏆 승리</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="attemptsDisplay">0</div>
+                <div class="stat-label">🔨 시도</div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn btn-enhance" onclick="enhance()">🔨 강화</button>
+            <button class="btn btn-super" onclick="superEnhance()">⚡ 상급강화 (50G)</button>
+            <button class="btn btn-battle" onclick="battle()">⚔️ 배틀</button>
+            <button class="btn btn-check" onclick="dailyCheck()">📅 출석체크</button>
+            <button class="btn btn-collection" onclick="showCollection()">📖 도감</button>
+            <button class="btn btn-rates" onclick="showRates()">📊 확률표</button>
+            <button class="btn btn-sell" onclick="sell()">💰 판매</button>
+            <button class="btn btn-reset" onclick="resetGame()">🔄 초기화</button>
+        </div>
+
+        <div class="log" id="log"></div>
+    </div>
+
+    <!-- 모달 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2 id="modalTitle"></h2>
+            <div id="modalContent"></div>
+            <button class="modal-close" onclick="closeModal()">닫기</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== 검 데이터 =====
+        const SWORDS = [
+            { level: 0, name: "낡은 몽둥이", emoji: "🪵", desc: "어디서 주운 낡은 몽둥이다.", power: 1 },
+            { level: 1, name: "녹슨 단검", emoji: "🔪", desc: "녹이 슬었지만 그래도 검이다.", power: 5 },
+            { level: 2, name: "철검", emoji: "🗡️", desc: "기본적인 철로 만든 검. 쓸만하다.", power: 12 },
+            { level: 3, name: "강철 장검", emoji: "⚔️", desc: "단단한 강철로 벼린 장검. 묵직한 한방이 있다.", power: 22 },
+            { level: 4, name: "은빛 세검", emoji: "🌙", desc: "은빛으로 빛나는 세검. 달빛 아래서 더 강해진다는 소문.", power: 35 },
+            { level: 5, name: "마력의 검", emoji: "🔮", desc: "마력이 깃든 신비한 검. 검에서 푸른 오오라가 피어오른다.", power: 50 },
+            { level: 6, name: "화염의 대검", emoji: "🔥", desc: "불꽃이 타오르는 대검. 벨 때마다 화염이 작렬한다.", power: 70 },
+            { level: 7, name: "흑사병의 물결", emoji: "🌊", desc: "어둠의 파동이 일렁이는 저주받은 검. 베인 자는 서서히 부패한다.", power: 95 },
+            { level: 8, name: "용의 이빨", emoji: "🐉", desc: "고대 용의 이빨로 벼린 전설의 검. 용의 분노가 깃들어 있다.", power: 130 },
+            { level: 9, name: "천상의 빛", emoji: "✨", desc: "하늘에서 내려온 성스러운 검. 들어올린 자에게 축복이 깃든다.", power: 180 },
+            { level: 10, name: "무(無)의 권능 검", emoji: "💀", desc: "과거 통제 불능의 부패는 이제 존재의 근원을 뒤흔드는 완벽한 힘으로 완성되었다. 휘두르는 모든 것은 무(無)로 돌아가, 마치 태초의 공허가 강림한 듯하다.", power: 999 }
+        ];
+
+        // ===== 강화 확률 =====
+        const ENHANCE_RATES = {
+            0: 0.95, 1: 0.90, 2: 0.85, 3: 0.75, 4: 0.65,
+            5: 0.50, 6: 0.35, 7: 0.20, 8: 0.10, 9: 0.05
+        };
+
+        // ===== 게임 상태 =====
+        let gameState = loadGame() || {
+            level: 0,
+            gold: 100,
+            wins: 0,
+            losses: 0,
+            attempts: 0,
+            maxLevel: 0,
+            collection: [0],
+            lastCheck: null
+        };
+
+        // ===== 저장/로드 =====
+        function saveGame() {
+            localStorage.setItem('swordGame', JSON.stringify(gameState));
+        }
+
+        function loadGame() {
+            const data = localStorage.getItem('swordGame');
+            return data ? JSON.parse(data) : null;
+        }
+
+        // ===== UI 업데이트 =====
+        function updateDisplay() {
+            const sword = SWORDS[gameState.level];
+            document.getElementById('swordEmoji').textContent = sword.emoji;
+            document.getElementById('swordName').textContent = `[+${sword.level}] ${sword.name}`;
+            document.getElementById('swordDesc').textContent = sword.desc;
+            document.getElementById('levelDisplay').textContent = `+${gameState.level}`;
+            document.getElementById('goldDisplay').textContent = gameState.gold;
+            document.getElementById('winsDisplay').textContent = gameState.wins;
+            document.getElementById('attemptsDisplay').textContent = gameState.attempts;
+            saveGame();
+        }
+
+        function addLog(message, type = '') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const time = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+            entry.innerHTML = `<span style="color:#555">[${time}]</span> ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            if (log.children.length > 50) log.removeChild(log.lastChild);
+        }
+
+        // ===== 강화 =====
+        function enhance() {
+            const currentLevel = gameState.level;
+            if (currentLevel >= 10) {
+                addLog("이미 최고 레벨입니다! 🏆", "log-info");
+                return;
+            }
+
+            gameState.attempts++;
+            const rate = ENHANCE_RATES[currentLevel];
+            const success = Math.random() < rate;
+            const display = document.getElementById('swordDisplay');
+
+            if (success) {
+                gameState.level++;
+                if (!gameState.collection.includes(gameState.level)) {
+                    gameState.collection.push(gameState.level);
+                    addLog(`📖 새로운 검 발견! [+${gameState.level}] ${SWORDS[gameState.level].name}`, "log-info");
+                }
+                if (gameState.level > gameState.maxLevel) gameState.maxLevel = gameState.level;
+                gameState.gold += gameState.level * 5;
+                display.classList.add('glow');
+                setTimeout(() => display.classList.remove('glow'), 500);
+                addLog(`🎉 강화 성공! +${currentLevel} → +${gameState.level} (${(rate*100).toFixed(0)}%)`, "log-success");
+            } else {
+                const destroyed = currentLevel >= 7 && Math.random() < 0.3;
+                if (destroyed) {
+                    addLog(`💥 [+${currentLevel}] ${SWORDS[currentLevel].name} 산산조각! → [+0] 낡은 몽둥이 지급`, "log-destroy");
+                    gameState.level = 0;
+                } else {
+                    const newLevel = Math.max(0, currentLevel - 1);
+                    addLog(`😢 강화 실패... +${currentLevel} → +${newLevel} (${(rate*100).toFixed(0)}%)`, "log-fail");
+                    gameState.level = newLevel;
+                }
+                display.classList.add('shake');
+                setTimeout(() => display.classList.remove('shake'), 300);
+            }
+            updateDisplay();
+        }
+
+        // ===== 상급강화 =====
+        function superEnhance() {
+            if (gameState.gold < 50) {
+                addLog("❌ 골드가 부족합니다! (50G 필요)", "log-fail");
+                return;
+            }
+            if (gameState.level >= 10) {
+                addLog("이미 최고 레벨입니다! 🏆", "log-info");
+                return;
+            }
+
+            gameState.gold -= 50;
+            gameState.attempts++;
+            const currentLevel = gameState.level;
+            const baseRate = ENHANCE_RATES[currentLevel];
+            const boostedRate = Math.min(baseRate * 1.5, 0.99);
+            const success = Math.random() < boostedRate;
+            const display = document.getElementById('swordDisplay');
+
+            if (success) {
+                gameState.level++;
+                if (!gameState.collection.includes(gameState.level)) {
+                    gameState.collection.push(gameState.level);
+                    addLog(`📖 새로운 검 발견! [+${gameState.level}] ${SWORDS[gameState.level].name}`, "log-info");
+                }
+                if (gameState.level > gameState.maxLevel) gameState.maxLevel = gameState.level;
+                gameState.gold += gameState.level * 10;
+                display.classList.add('glow');
+                setTimeout(() => display.classList.remove('glow'), 500);
+                addLog(`⚡ 상급강화 성공! +${currentLevel} → +${gameState.level} (${(boostedRate*100).toFixed(0)}%) [-50G]`, "log-success");
+            } else {
+                const newLevel = Math.max(0, currentLevel - 1);
+                addLog(`⚡ 상급강화 실패... +${currentLevel} → +${newLevel} (${(boostedRate*100).toFixed(0)}%) [-50G]`, "log-fail");
+                gameState.level = newLevel;
+                display.classList.add('shake');
+                setTimeout(() => display.classList.remove('shake'), 300);
+            }
+            updateDisplay();
+        }
+
+        // ===== 배틀 =====
+        function battle() {
+            const oppLevel = Math.floor(Math.random() * 11);
+            const oppSword = SWORDS[oppLevel];
+            const oppName = ["김철수","이영희","박민수","최지영","정대호","강수진","윤서준","한미래","조은비","송하늘"][Math.floor(Math.random()*10)];
+
+            const myPower = SWORDS[gameState.level].power + Math.random() * 20;
+            const oppPower = oppSword.power + Math.random() * 20;
+            const win = myPower > oppPower;
+
+            if (win) {
+                const reward = oppLevel * 5 + 10;
+                gameState.wins++;
+                gameState.gold += reward;
+                addLog(`⚔️ vs ${oppName}([+${oppLevel}]) → 🏆 승리! +${reward}G`, "log-battle");
+            } else {
+                gameState.losses++;
+                addLog(`⚔️ vs ${oppName}([+${oppLevel}]) → 💀 패배...`, "log-fail");
+            }
+            updateDisplay();
+        }
+
+        // ===== 출석체크 =====
+        function dailyCheck() {
+            const today = new Date().toDateString();
+            if (gameState.lastCheck === today) {
+                addLog("📅 오늘은 이미 출석체크 완료!", "log-info");
+                return;
+            }
+            gameState.lastCheck = today;
+            gameState.gold += 50;
+            addLog("📅 출석체크! +50G", "log-success");
+            updateDisplay();
+        }
+
+        // ===== 판매 =====
+        function sell() {
+            if (gameState.level === 0) {
+                addLog("❌ 낡은 몽둥이는 아무도 안 삽니다...", "log-fail");
+                return;
+            }
+            const price = gameState.level * 15;
+            addLog(`💰 [+${gameState.level}] ${SWORDS[gameState.level].name} 판매! +${price}G`, "log-info");
+            gameState.gold += price;
+            gameState.level = 0;
+            updateDisplay();
+        }
+
+        // ===== 도감 =====
+        function showCollection() {
+            let html = '';
+            SWORDS.forEach((s, i) => {
+                const unlocked = gameState.collection.includes(i);
+                html += `<div class="collection-item ${unlocked ? '' : 'locked'}">
+                    <span class="collection-emoji">${unlocked ? s.emoji : '❓'}</span>
+                    <div>
+                        <strong>[+${s.level}] ${unlocked ? s.name : '???'}</strong><br>
+                        <small style="color:#888">${unlocked ? s.desc : '아직 발견하지 못한 검입니다.'}</small>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('modalTitle').textContent = `📖 도감 (${gameState.collection.length}/${SWORDS.length})`;
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        // ===== 확률표 =====
+        function showRates() {
+            let html = '<table style="width:100%; text-align:center; border-collapse:collapse;">';
+            html += '<tr style="border-bottom:2px solid #e94560"><th>강화</th><th>확률</th><th>상급강화</th></tr>';
+            for (let i = 0; i <= 9; i++) {
+                const r = ENHANCE_RATES[i];
+                const sr = Math.min(r * 1.5, 0.99);
+                const color = r >= 0.5 ? '#10b981' : r >= 0.2 ? '#f59e0b' : '#ef4444';
+                html += `<tr style="border-bottom:1px solid #333">
+                    <td>+${i}→+${i+1}</td>
+                    <td style="color:${color}">${(r*100).toFixed(0)}%</td>
+                    <td style="color:${color}">${(sr*100).toFixed(0)}%</td>
+                </tr>`;
+            }
+            html += '</table>';
+            if (gameState.level >= 7) html += '<p style="color:#f59e0b;margin-top:10px">⚠️ +7 이상 실패 시 30% 확률로 파괴!</p>';
+            document.getElementById('modalTitle').textContent = '📊 강화 확률표';
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // ===== 초기화 =====
+        function resetGame() {
+            if (!confirm('정말 초기화하시겠습니까? 모든 데이터가 사라집니다!')) return;
+            gameState = { level: 0, gold: 100, wins: 0, losses: 0, attempts: 0, maxLevel: 0, collection: [0], lastCheck: null };
+            document.getElementById('log').innerHTML = '';
+            addLog("🔄 게임이 초기화되었습니다.", "log-info");
+            updateDisplay();
+        }
+
+        // 초기 화면 업데이트
+        updateDisplay();
+        addLog("⚔️ 검만들기 게임에 오신 것을 환영합니다!", "log-info");
+    </script>
+</body>
+</html>
